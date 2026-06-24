@@ -68,6 +68,8 @@ public class ReversiGame
             return;
         }
 
+        ResultMessage = "";
+
         PutStone(x, y);
 
         ReverseStone(x, y);
