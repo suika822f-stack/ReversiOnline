@@ -1,0 +1,40 @@
+﻿.board {
+    display: grid;
+    grid-template-columns: repeat(8, 60px);
+    grid-template-rows: repeat(8, 60px);
+    width: fit-content;
+    border: 2px solid black;
+}
+
+.cell {
+    width: 60px;
+    height: 60px;
+    background-color: green;
+    border: 1px solid black;
+    box-sizing: border-box;
+}
+
+.black-stone,
+.white-stone,
+.predict-stone
+{
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin: 4px auto;
+}
+
+.black-stone {
+    background: black;
+}
+
+.white-stone {
+    background: white;
+    border: 1px solid black;
+}
+
+.predict-stone {
+    background: gray;
+    border: 1px solid black;
+    opacity: 0.5;
+}

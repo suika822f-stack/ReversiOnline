@@ -1,0 +1,131 @@
+﻿@page "/reversi"
+
+@using ReversiOnline.Models
+@using ReversiOnline.Services
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager Navigation
+
+<h3>Reversi</h3>
+<p>自分の色: @MyStoneColor</p>
+<p>現在の手番: @Game.CurrentPlayer</p>
+<button @onclick="CreateRoom">
+    部屋作成
+</button>
+
+<input @bind="RoomId" />
+
+<button @onclick="JoinRoom">
+    部屋参加
+</button>
+
+<p>部屋ID: @CurrentRoomId</p>
+
+<p>@Game.ResultMessage</p>
+
+<div class="board">
+    @for (int x = 0; x < 8; x++)
+    {
+        @for (int y = 0; y < 8; y++)
+        {
+            int currentX = x;
+            int currentY = y;
+
+            var cell = Game.Board[currentX, currentY];
+
+            <button class="cell"
+                    disabled="@(!IsMyTurn)"
+                    @onclick="() => OnClick(currentX, currentY)">
+
+                @if (cell.Stone == Stone.Black)
+                {
+                    <div class="black-stone"></div>
+                }
+                else if (cell.Stone == Stone.White)
+                {
+                    <div class="white-stone"></div>
+                }
+                else if (cell.Stone == Stone.Predict)
+                {
+                    <div class="predict-stone"></div>
+                }
+
+            </button>
+        }
+    }
+</div>
+
+@code {
+    private string RoomId = "";
+
+    private string CurrentRoomId = "";
+
+    private ReversiGame Game = new();
+
+    private bool IsMyTurn => Game.CurrentPlayer == MyStoneColor;
+    private Stone MyStoneColor;
+
+    private HubConnection? hub;
+    protected override async Task OnInitializedAsync()
+    {
+        hub = new HubConnectionBuilder()
+            .WithUrl(
+                Navigation.ToAbsoluteUri("/reversihub"))
+            .Build();
+
+        hub.On<GameState>("BoardUpdated",state =>
+        {
+            for (int x = 0; x < 8; x++)
+            {
+                for (int y = 0; y < 8; y++)
+                {
+                    Game.Board[x, y].Stone = state.Board[y * 8 + x];
+                }
+            }
+
+            Game.CurrentPlayer = state.CurrentPlayer;
+            Game.ResultMessage = state.ResultMessage;
+
+            InvokeAsync(StateHasChanged);
+        });
+
+        hub.On<string>("AssignColor", color =>
+        {
+            MyStoneColor =
+                color == "Black"
+                ? Stone.Black
+                : Stone.White;
+
+            InvokeAsync(StateHasChanged);
+        });
+
+        await hub.StartAsync();
+    }
+
+    private async Task OnClick(int x, int y)
+    {
+        if (hub is null)
+        {
+            return;
+        }
+        await hub.InvokeAsync("PlaceStone", CurrentRoomId, x, y);
+    }
+    private async Task CreateRoom()
+    {
+        CurrentRoomId =
+            await hub!.InvokeAsync<string>(
+                "CreateRoom");
+        RoomId = "";
+    }
+    private async Task JoinRoom()
+    {
+        bool result =
+            await hub!.InvokeAsync<bool>(
+                "JoinRoom",
+                RoomId);
+
+        if (result)
+        {
+            CurrentRoomId = RoomId;
+        }
+    }
+}
