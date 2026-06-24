@@ -1,0 +1,40 @@
+.board[b-3i03cnw3se] {
+    display: grid;
+    grid-template-columns: repeat(8, 60px);
+    grid-template-rows: repeat(8, 60px);
+    width: fit-content;
+    border: 2px solid black;
+}
+
+.cell[b-3i03cnw3se] {
+    width: 60px;
+    height: 60px;
+    background-color: green;
+    border: 1px solid black;
+    box-sizing: border-box;
+}
+
+.black-stone[b-3i03cnw3se],
+.white-stone[b-3i03cnw3se],
+.predict-stone[b-3i03cnw3se]
+{
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin: 4px auto;
+}
+
+.black-stone[b-3i03cnw3se] {
+    background: black;
+}
+
+.white-stone[b-3i03cnw3se] {
+    background: white;
+    border: 1px solid black;
+}
+
+.predict-stone[b-3i03cnw3se] {
+    background: gray;
+    border: 1px solid black;
+    opacity: 0.5;
+}
